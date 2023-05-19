@@ -20,6 +20,7 @@
 
 cl::Device GetGPUDevice();
 cl::Kernel LoadKernel(const std::string& path, const std::string& name, const cl::Device& device, const cl::Context& context);
+std::vector<float> LoadFilter(const std::string& path);
 
 int main(int argc, char** argv) {
 
@@ -46,15 +47,15 @@ int main(int argc, char** argv) {
                        image.cols, image.rows, 0, image.data);
     cl::Image2D destination(context, CL_MEM_WRITE_ONLY, cl::ImageFormat(CL_RGBA, CL_UNSIGNED_INT8), image.cols, image.rows);
 
-    std::vector<float> filterMatrix = {0.f, -1.f, 0.f, -1.f, 4.f, -1.f, 0.f, -1.f, 0.f};
-    cl::Buffer filter(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, filterMatrix.size() * sizeof(float),
-                      (void*) &filterMatrix[0], &status);
+    std::vector<float> filterMatrix = LoadFilter("res/filter.txt");
+    cl::Buffer filterBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, filterMatrix.size() * sizeof(float),
+                      (void*) &filterMatrix[0]);
 
 
     cl::Kernel laplacianKernel = LoadKernel("res/kernel.cl", "Laplacian", gpuDevice, context);
     laplacianKernel.setArg(0, source);
     laplacianKernel.setArg(1, destination);
-//    laplacianKernel.setArg(2, filterMatrix);
+    laplacianKernel.setArg(2, filterBuffer);
 
 
     // execute kernel
@@ -131,4 +132,17 @@ cl::Kernel LoadKernel(const std::string& path, const std::string& name, const cl
 
 
     return kernel;
+}
+
+std::vector<float> LoadFilter(const std::string& path) {
+    std::vector<float> result;
+
+    std::ifstream filterFile{path};
+    while (!filterFile.eof()) {
+        float value;
+        filterFile >> value;
+        result.push_back(value);
+    }
+
+    return result;
 }
