@@ -15,6 +15,9 @@ target_link_libraries(${PROJECT_NAME} OpenCL::OpenCL)
 INCLUDE_DIRECTORIES( ${OpenCV_INCLUDE_DIRS} )
 TARGET_LINK_LIBRARIES (${PROJECT_NAME} ${OpenCV_LIBS})
 
+find_package(spdlog CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} spdlog::spdlog spdlog::spdlog_header_only)
+
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E create_symlink
         ${CMAKE_SOURCE_DIR}/res

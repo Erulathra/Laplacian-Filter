@@ -1,2 +1,3 @@
 cmake-build-*
 /res/output.png
+.idea
