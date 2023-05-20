@@ -14,7 +14,7 @@
 #include <OpenCL/opencl.h>
 #else
 
-#include <CL/cl.hpp>
+#include <CL/cl2.hpp>
 
 #endif
 
@@ -64,16 +64,7 @@ int main(int argc, char** argv) {
     cv::Mat result(image.rows, image.cols, CV_8UC4);
     SPDLOG_INFO("Result Size: {}x{}", result.cols, result.rows);
 
-    cl::size_t<3> origin;
-    origin[0] = 0;
-    origin[1] = 0;
-    origin[2] = 0;
-    cl::size_t<3> region;
-    region[0] = result.cols;
-    region[1] = result.rows;
-    region[2] = 1;
-
-    commandQueue.enqueueReadImage(destination, CL_TRUE, origin, region, 0, 0, result.data);
+    commandQueue.enqueueReadImage(destination, CL_TRUE, {0, 0, 0}, {(uint64_t) result.cols, (uint64_t) result.rows, 1}, 0, 0, result.data);
     cv::cvtColor(result, result, cv::ColorConversionCodes::COLOR_RGBA2BGR);
     cv::imwrite("res/output.png", result);
 
@@ -120,7 +111,7 @@ cl::Kernel LoadKernel(const std::string& path, const std::string& name, const cl
 
     kernelFile.close();
 
-    cl::Program program(context, kernelSource, GL_TRUE);
+    cl::Program program(context, kernelSource, true);
 
     if(program.getBuildInfo<CL_PROGRAM_BUILD_STATUS>(device) != 0){
         std::cerr << "Build Status: " << program.getBuildInfo<CL_PROGRAM_BUILD_STATUS>(device) << "/n"

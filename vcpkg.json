@@ -6,5 +6,8 @@
     "name" : "spdlog",
     "version>=" : "1.11.0",
     "$comment" : "    # this is heuristically generated, and may not be correct\n\n    find_package(spdlog CONFIG REQUIRED)\n\n    target_link_libraries(main PRIVATE spdlog::spdlog spdlog::spdlog_header_only)\n"
+  }, {
+    "name" : "opencl",
+    "version>=" : "v2023.02.06"
   } ]
 }
